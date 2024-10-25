@@ -2,21 +2,21 @@ const webPush = require('web-push');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
-
-// Load environment variables from .env file
 dotenv.config();
 
+// Load environment variables from .env file
+
 // Function to save VAPID keys to the .env file
-const saveVapidKeysToEnv = (publicKey, privateKey) => {
-  const envPath = path.resolve(__dirname, '../.env');
-  let envContent = fs.readFileSync(envPath, 'utf8');
+// const saveVapidKeysToEnv = (publicKey, privateKey) => {
+//   const envPath = path.resolve(__dirname, '../.env');
+//   let envContent = fs.readFileSync(envPath, 'utf8');
 
-  envContent = envContent.replace(/^VAPID_PUBLIC_KEY=.*/m, `VAPID_PUBLIC_KEY=${publicKey}`);
-  envContent = envContent.replace(/^VAPID_PRIVATE_KEY=.*/m, `VAPID_PRIVATE_KEY=${privateKey}`);
+//   envContent = envContent.replace(/^VAPID_PUBLIC_KEY=.*/m, `VAPID_PUBLIC_KEY=${publicKey}`);
+//   envContent = envContent.replace(/^VAPID_PRIVATE_KEY=.*/m, `VAPID_PRIVATE_KEY=${privateKey}`);
 
-  fs.writeFileSync(envPath, envContent);
-  console.log('VAPID keys saved to .env file');
-};
+//   fs.writeFileSync(envPath, envContent);
+//   console.log('VAPID keys saved to .env file');
+// };
 
 // Check if VAPID keys exist in the .env file
 let vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
@@ -29,7 +29,7 @@ if (!vapidPublicKey || !vapidPrivateKey) {
   vapidPrivateKey = vapidKeys.privateKey;
 
   // Save the newly generated keys to the .env file
-  saveVapidKeysToEnv(vapidPublicKey, vapidPrivateKey);
+  // saveVapidKeysToEnv(vapidPublicKey, vapidPrivateKey);
 
   console.log('VAPID keys generated and saved to .env:');
   console.log('Public Key:', vapidPublicKey);

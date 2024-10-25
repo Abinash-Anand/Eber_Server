@@ -10,15 +10,7 @@ const routers = require('./routers/routers'); // Ensure this path is correct
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Booking = require('./models/rideBookings'); // Ensure the correct path
 const Ride = require('./models/createRideModel'); // Ensure the correct path
-const {
-  saveSessionToDB,
-  startSessionTimer,
-  autoSaveToRedis,
-  markSessionInactive,
-  resumeSessionAfterRestart,
-  cleanUpExpiredSessions,
-  sessionCountdownTimer
-} = require('./services/sessionTimer');
+const {resumeSessionAfterRestart, cleanUpExpiredSessions} = require('./services/sessionTimer');
 const { scheduledReassignDriver, resumePendingAssignments } = require('./utils/scheduler'); // Adjust the path accordingly
 const cluster = require('cluster');
 const os = require('os');
@@ -65,7 +57,7 @@ if (cluster.isMaster) {
   const server = http.createServer(app);
   const io = socketIo(server, {
     cors: {
-      origin: 'http://localhost:4200', // Adjust this to your frontend URL
+      origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
       methods: ['GET', 'POST'],
     },
   });
@@ -76,7 +68,7 @@ if (cluster.isMaster) {
   app.use(express.json());
 
   const corsOptions = {
-    origin: 'http://localhost:4200', // Adjust this to your frontend URL
+    origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
     optionsSuccessStatus: 200,
     credentials: true,
   };
