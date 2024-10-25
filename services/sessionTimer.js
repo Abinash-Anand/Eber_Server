@@ -4,7 +4,7 @@ require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 
 // Redis client setup for session management
-const redisClient = redis.createClient({ url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` });
+const redisClient = redis.createClient({ url: process.env.REDIS_URL });
 
 (async () => {
   try {

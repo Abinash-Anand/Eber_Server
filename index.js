@@ -17,7 +17,7 @@ const os = require('os');
 
 // Redis client setup for general session management
 const redis = require('redis');
-const redisClient = redis.createClient({ url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` });
+const redisClient = redis.createClient({ url: process.env.REDIS_URL });
 
 // Use the number of available CPU cores
 const numCPUs = os.cpus().length;
