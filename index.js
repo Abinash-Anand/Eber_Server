@@ -72,7 +72,7 @@ if (cluster.isMaster) {
  const io = socketIo(server, {
   cors: {
     origin: whitelist,
-    methods: ['GET', 'POST'],
+    methods: '*',
     credentials: true
   }
 });
@@ -92,7 +92,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: "*",
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
