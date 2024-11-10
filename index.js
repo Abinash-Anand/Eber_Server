@@ -10,14 +10,28 @@ const routers = require('./routers/routers'); // Ensure this path is correct
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Booking = require('./models/rideBookings'); // Ensure the correct path
 const Ride = require('./models/createRideModel'); // Ensure the correct path
-const {resumeSessionAfterRestart, cleanUpExpiredSessions} = require('./services/sessionTimer');
+const {
+  saveSessionToDB,
+  startSessionTimer,
+  autoSaveToRedis,
+  markSessionInactive,
+  resumeSessionAfterRestart,
+  cleanUpExpiredSessions,
+  sessionCountdownTimer
+} = require('./services/sessionTimer');
 const { scheduledReassignDriver, resumePendingAssignments } = require('./utils/scheduler'); // Adjust the path accordingly
 const cluster = require('cluster');
 const os = require('os');
+const whitelist = [
+  process.env.FRONTEND_URL_1,
+  process.env.FRONTEND_URL_2,
+  process.env.FRONTEND_URL_3,
+  process.env.FRONTEND_URL_4
+].filter(Boolean); // This removes any undefined values if env vars are not set
 
 // Redis client setup for general session management
 const redis = require('redis');
-const redisClient = redis.createClient({ url: process.env.REDIS_URL });
+const redisClient = redis.createClient({ url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` });
 
 // Use the number of available CPU cores
 const numCPUs = os.cpus().length;
@@ -55,24 +69,34 @@ if (cluster.isMaster) {
   // Worker processes: run the express server
   const app = express();
   const server = http.createServer(app);
-  const io = socketIo(server, {
-    cors: {
-      origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
-      methods: ['GET', 'POST'],
-    },
-  });
+ const io = socketIo(server, {
+  cors: {
+    origin: whitelist,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
 
   console.log(`Worker ${process.pid} started`);
 
   app.use(cookieParser());
   app.use(express.json());
 
-  const corsOptions = {
-    origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
-    optionsSuccessStatus: 200,
-    credentials: true,
-  };
-  app.use(cors(corsOptions));
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      console.error(`Origin not allowed by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+  credentials: true
+};
+  app.options('*', cors(corsOptions)); // Allow preflight requests on all routes
   app.use(bodyParser.json());
   app.use('/uploads', express.static('uploads'));
   app.use(routers);
