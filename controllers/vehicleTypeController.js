@@ -1,8 +1,8 @@
+require('dotenv')
 const { vehicleTypeModel } = require('../models/modelPackage'); // Ensure this path is correct
 const fs = require('fs'); // Import the File System module for file operations
 const Pricing = require('../models/pricingModel')
 const vehicleTypeController = async (req, res) => {
-  
   try {
     const lowercaseVehicleName = req.body.vehicleName
     const firstLetterUpperCaseVehicleName = lowercaseVehicleName.charAt(0).toUpperCase()
@@ -23,7 +23,7 @@ const vehicleTypeController = async (req, res) => {
         res.status(200).json({ message: 'Vehicle type added successfully', vehicleType });
 
     } catch (error) {
-        res.status(500).json({ message: "Error adding the vehicle type: ", error });
+        res.status(500).json({ message: "Error adding the vehicle type: vehicleTypeController: ", error });
     }
 };
 
@@ -34,7 +34,7 @@ const vehicleData = async (req, res) => {
     // Map each vehicle to include the image URL
     const vehiclesWithImageURLs = vehicles.map(vehicle => ({
       ...vehicle.toObject(),
-      vehicleImageURL: `http://localhost:5000/uploads/${vehicle.vehicleImage.fileName}`
+      vehicleImageURL: `${process.env.SERVER_PORT}/uploads/${vehicle.vehicleImage.fileName}`
     }));
 
     // Send the modified vehicle data with image URLs in the response
