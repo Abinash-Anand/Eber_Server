@@ -85,18 +85,20 @@ if (cluster.isMaster) {
 
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: (origin, callback) => {
     if (whitelist.includes(origin) || !origin) {
       callback(null, true);
     } else {
-      console.error(`Origin not allowed by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
-  app.options('*', cors(corsOptions)); // Allow preflight requests on all routes
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
   app.use(bodyParser.json());
   app.use('/uploads', express.static('uploads'));
   app.use(routers);
